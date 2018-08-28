@@ -1,11 +1,12 @@
 class ItemsController < ApplicationController
-  before_action :set_item, only: [:show, :update, :destroy]
+  before_action :set_todo
+  before_action :set_todo_item, only: [:show, :update, :destroy]
 
   # GET /items
   def index
-    @items = Item.all
+    @items = @todo.items
 
-    render json: @items
+    render json: @todo.items
   end
 
   # GET /items/1
@@ -15,13 +16,14 @@ class ItemsController < ApplicationController
 
   # POST /items
   def create
-    @item = Item.new(item_params)
+    @item = @todo.items.create!(item_params)
 
-    if @item.save
-      render json: @item, status: :created, location: @item
-    else
-      render json: @item.errors, status: :unprocessable_entity
-    end
+    render json: @item
+    # if @item.save
+    #   render json: @item, status: :created, location: @item
+    # else
+    #   render json: @item.errors, status: :unprocessable_entity
+    # end
   end
 
   # PATCH/PUT /items/1
@@ -40,12 +42,22 @@ class ItemsController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_item
-      @item = Item.find(params[:id])
-    end
+    # def set_item
+    #   @item = Item.find(params[:id])
+    # end
 
     # Only allow a trusted parameter "white list" through.
     def item_params
       params.require(:item).permit(:name, :done, :priority, :due_date, :user_id, :todo_id)
     end
+
+    def set_todo
+      @todo = Todo.find(params[:todo_id])
+    end
+
+    def set_todo_item
+      @item = @todo.items.find_by!(id: params[:id]) if @todo
+    end
+
+
 end
